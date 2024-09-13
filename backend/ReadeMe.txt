@@ -1,0 +1,76 @@
+# Base Route
+@app.get("/")
+def read_root():
+    """
+    Returns a JSON response with the message "Hello: World".
+    """
+    return {"Hello": "World"}
+
+
+# Login Route
+@app.post("/login/")
+def login(username: str, password: str):
+    """
+    Authenticates the user with the provided username and password.
+    Returns a JSON response with the message "Login successful" if the authentication is successful,
+    or "Invalid password" if the password is incorrect, or "User not found" if the user does not exist.
+    """
+
+
+# Signup Route
+@app.post("/signup/")
+def signup(username: str, password: str):
+    """
+    Creates a new user with the provided username and password.
+    Returns a JSON response with the message "User created successfully" if the user is created successfully,
+    or "Username already taken" if the username is already taken.
+    """
+
+
+# Generate Course Layout
+@app.post("/generate_layout/")
+def course_layout_generator(content, context, course_name):
+    """
+    Generates the course layout based on the provided content and context.
+    Inserts the generated layout into the MongoDB collection "course_layouts".
+    """
+
+
+@app.post("/store_video/")
+def store_video(video_url: str, week: int, topic_name: str, course_name: str):
+    """
+    Stores the video information (video URL, week, topic name, and course name) in the MongoDB collection "videos".
+    Returns a JSON response with the message "Video stored successfully".
+    """
+
+
+@app.post("/generate_summary/")
+def weekwise_summary(course_name: str, week: int):
+    """
+    Generates the week-wise summary for the given course name and week.
+    Downloads audio files for each video, transcribes them, and generates lecture notes.
+    Inserts the generated summary into the MongoDB collection "summary".
+    """
+
+
+@app.post("/generate_quiz")
+def quiz_generator(course_name, week):
+    """
+    Generates a quiz for the given course name and week.
+    Retrieves the summary content from the MongoDB collection "summary".
+    Generates the quiz based on the summary content and inserts it into the MongoDB collection "quizzes".
+    Returns a JSON response with the message "Quiz saved successfully".
+    """
+
+
+@app.post("/translate/")
+def translate_text(course_name, week, level, target_language_code):
+    """
+    Translates the content for the given course name, week, and level to the target language specified by the target language code.
+    Retrieves the content from the MongoDB collection "summary".
+    Translates the content to the target language and returns the translated text.
+    """
+
+#To Run teh project run "uvicorn main:app --reload" in the terminal.
+
+#Sarvam API requests are limited so use routes generate_summary and translate only when needed.

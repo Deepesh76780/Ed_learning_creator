@@ -1,0 +1,13 @@
+/frontend/node_modules/
+/backend/__pycache__
+/backend/.venv
+/frontend/.expo/
+/frontend/dist/
+/frontend/npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+/frontend/web-build
