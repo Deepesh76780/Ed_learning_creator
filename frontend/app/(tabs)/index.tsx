@@ -1,38 +1,123 @@
-import React from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
+import { router } from 'expo-router';
+
 // @ts-expect-error
 import Ionicons from 'react-native-vector-icons/Ionicons'; // Import Icon
 
 const Tab = createBottomTabNavigator();
 
-// Login Screen
 function LoginScreen() {
+
+    const [username, setName] = useState();
+    const [password, setPassword] = useState();
+
+    const handleLogin = async () => {
+        if (!username || !password) {
+            Alert.alert('Error', 'Please fill out all fields');
+            return;
+        }
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                }),
+            });
+
+            const data = await response.json();
+            console.log(data)
+            if (response.ok) {
+                if (data.message === 'Login successful') {
+                    Alert.alert('Success', data.message);
+                    router.push("/(tabs)/(user)/")
+
+                } else {
+                    Alert.alert('Error', data.message);
+                }
+            } else {
+                Alert.alert('Error', 'Something went wrong, please try again later.');
+            }
+
+        } catch (error) {
+            Alert.alert('Error', 'Failed to connect to the server.');
+            console.error('Error:', error);
+        }
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.header}>Login</Text>
-            <TextInput style={styles.input} placeholder="Email" />
-            <TextInput style={styles.input} placeholder="Password" secureTextEntry />
-            <Button title="Login" onPress={() => { }} />
+            <TextInput style={styles.input} placeholder="Name" onChangeText={(newText: any) => setName(newText)}
+            />
+            <TextInput style={styles.input} placeholder="Password" onChangeText={(newText: any) => setPassword(newText)} secureTextEntry />
+            <Button title="Login" onPress={handleLogin} />
         </View>
     );
 }
 
-// Signup Screen
-function SignupScreen() {
+
+function SignupScreen({ navigation }: { navigation: any }) {
+
+    const [username, setName] = useState();
+    const [password, setPassword] = useState();
+
+
+    const handleSignup = async () => {
+        if (!username || !password) {
+            Alert.alert('Error', 'Please fill out all fields');
+            return;
+        }
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                }),
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                if (data.message === 'User created successfully') {
+                    Alert.alert('Success', data.message);
+                    navigation.navigate("Login");
+
+                } else {
+                    Alert.alert('Error', data.message);
+                }
+            } else {
+                Alert.alert('Error', 'Something went wrong, please try again later.');
+            }
+
+        } catch (error) {
+            Alert.alert('Error', 'Failed to connect to the server.');
+            console.error('Error:', error);
+        }
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.header}>Signup</Text>
-            <TextInput style={styles.input} placeholder="Name" />
-            <TextInput style={styles.input} placeholder="Email" />
-            <TextInput style={styles.input} placeholder="Password" secureTextEntry />
-            <Button title="Signup" onPress={() => { }} />
+            <TextInput style={styles.input} placeholder="Name" onChangeText={(newText: any) => setName(newText)}
+            />
+            <TextInput style={styles.input} placeholder="Password" onChangeText={(newText: any) => setPassword(newText)} secureTextEntry />
+            <Button title="Signup" onPress={handleSignup} />
         </View>
     );
 }
 
-// Main Component with Tabs
 export default function Login() {
     return (
         <NavigationContainer independent={true}>

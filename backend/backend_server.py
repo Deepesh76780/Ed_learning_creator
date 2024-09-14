@@ -15,10 +15,23 @@ from notes_generator import lecture_notes_generator
 from translator import translate
 from course_layout import generate_Layout
 from quiz import quiz_generator
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
-# App
+
+
+
 app = FastAPI()
 
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Loading Env Variables
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -34,10 +47,20 @@ def read_root():
     return {"Hello": "World"}
 
 
+class SignupData(BaseModel):
+    username: str
+    password: str
+    
+    
 # Login Route
-@app.post("/login/")
-def login(username: str, password: str):
-    # Connect to MongoDB
+@app.post("/login")
+def login(data : SignupData):
+    username = data.username
+    password = data.password
+    
+    print("login function is running")
+
+    
     db_client = pymongo.MongoClient(
         mongodb.replace("<username>", db_user).replace("<password>", db_password)
     )
@@ -54,10 +77,13 @@ def login(username: str, password: str):
     else:
         return {"message": "User not found"}
 
-
 # Signup Route
-@app.post("/signup/")
-def signup(username: str, password: str):
+@app.post("/signup")
+def signup(data : SignupData):
+    username = data.username
+    password = data.password
+    
+    print("signup function is running")
     # Connect to MongoDB
     db_client = pymongo.MongoClient(
         mongodb.replace("<username>", db_user).replace("<password>", db_password)
