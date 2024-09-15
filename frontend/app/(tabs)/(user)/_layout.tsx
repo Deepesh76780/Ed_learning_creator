@@ -1,9 +1,25 @@
+import React from 'react';
 import { Stack } from 'expo-router';
 
-export default function RootLayout() {
+type Nameprop = { name: string };
+
+export default function RootStack({ name }: Nameprop) {
     return (
-        <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="index" />
+        <Stack
+            screenOptions={{
+                headerStyle: {
+                    backgroundColor: '#a81400',
+                },
+                headerTintColor: '#fff',
+                headerTitleStyle: {
+                    fontWeight: 'bold',
+                },
+            }}
+        >
+            <Stack.Screen name="index" options={{
+                headerShown: true,
+                title: `Hi! Deepesh`,  // Set dynamic title
+            }} />
         </Stack>
     );
 }

@@ -11,3 +11,5 @@
 *.mobileprovision
 *.orig.*
 /frontend/web-build
+/frontend/.env
+/backend/.env

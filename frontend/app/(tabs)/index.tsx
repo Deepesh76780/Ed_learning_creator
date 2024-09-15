@@ -58,7 +58,7 @@ function LoginScreen() {
             <TextInput style={styles.input} placeholder="Name" onChangeText={(newText: any) => setName(newText)}
             />
             <TextInput style={styles.input} placeholder="Password" onChangeText={(newText: any) => setPassword(newText)} secureTextEntry />
-            <Button title="Login" onPress={handleLogin} />
+            <Button title="Login" onPress={handleLogin} color={"#a81400"} />
         </View>
     );
 }
@@ -113,7 +113,7 @@ function SignupScreen({ navigation }: { navigation: any }) {
             <TextInput style={styles.input} placeholder="Name" onChangeText={(newText: any) => setName(newText)}
             />
             <TextInput style={styles.input} placeholder="Password" onChangeText={(newText: any) => setPassword(newText)} secureTextEntry />
-            <Button title="Signup" onPress={handleSignup} />
+            <Button title="Signup" onPress={handleSignup} color={"#a81400"} />
         </View>
     );
 }
@@ -132,6 +132,8 @@ export default function Login() {
                         }
                         return <Ionicons name={iconName} size={size} color={color} />;
                     },
+                    tabBarActiveTintColor: "#a81400",
+                    headerShown: false,
                 })}
             >
                 <Tab.Screen name="Login" component={LoginScreen} />
