@@ -1,19 +1,23 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput, Alert } from 'react-native';
 import { useState } from 'react';
+import { ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 // @ts-expect-error
 import Icon from 'react-native-vector-icons/Ionicons';
 import { router } from 'expo-router';
+import { useTeacherContext } from '@/context/TeacherId';
 
 export default function RootLayout() {
     const [modalVisible, setModalVisible] = useState(false);
     const [content, setContent] = useState('');
     const [context, setContext] = useState('');
     const [courseName, setCourseName] = useState('');
-    const [teacherId, setTeacherId] = useState('');
+   const [loading, setLoading] = useState(false);
+    const { teacherName } = useTeacherContext()
 
     const handleCreateCourse = async () => {
-
+        setLoading(true)
         try {
             const response = await fetch('http://127.0.0.1:8000/generate_layout', {
                 method: 'POST',
@@ -24,7 +28,7 @@ export default function RootLayout() {
                     content: content,
                     context: context,
                     course_name: courseName,
-                    teacher_id: teacherId
+                    teacher_id: teacherName
                 }),
             });
 
@@ -45,7 +49,11 @@ export default function RootLayout() {
             Alert.alert('Error', 'Failed to connect to the server.');
             console.error('Error:', error);
         }
-        setModalVisible(false); 
+        finally {
+            setLoading(false);
+            setModalVisible(false);
+
+        }
     };
 
     return (
@@ -68,7 +76,15 @@ export default function RootLayout() {
                 onRequestClose={() => setModalVisible(false)}
             >
                 <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
+                    {loading ? <View style={styles.loaderContainer}>
+                        <ActivityIndicator size="large" color="#c4210b" />
+                    </View> : <View style={styles.modalContent}>
+                        <TouchableOpacity
+                            style={styles.closeButton}
+                            onPress={() => setModalVisible(false)}
+                        >
+                            <Ionicons name="close" size={24} color="#0000009a" />
+                        </TouchableOpacity>
                         <Text style={styles.modalTitle}>Create New Course</Text>
 
                         <TextInput
@@ -77,12 +93,12 @@ export default function RootLayout() {
                             value={courseName}
                             onChangeText={setCourseName}
                         />
-                        <TextInput
+                        {/* <TextInput
                             style={styles.input}
                             placeholder="Teacher ID"
                             value={teacherId}
                             onChangeText={setTeacherId}
-                        />
+                        /> */}
                         <TextInput
                             style={styles.input}
                             placeholder="Content"
@@ -102,7 +118,7 @@ export default function RootLayout() {
                         >
                             <Text style={styles.submitButtonText}>Submit</Text>
                         </TouchableOpacity>
-                    </View>
+                    </View>}
                 </View>
             </Modal>
 
@@ -131,6 +147,11 @@ const styles = StyleSheet.create({
         fontSize: 15,
         marginLeft: 10,
     },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     modalContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -139,14 +160,14 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         width: 300,
-        padding: 20,
+        padding: 10,
         backgroundColor: '#fff',
         borderRadius: 10,
     },
     modalTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        marginBottom: 20,
+        marginBottom: 30,
     },
     input: {
         borderBottomWidth: 1,
@@ -156,7 +177,7 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
     },
     submitButton: {
-        backgroundColor: '#6200EE',
+        backgroundColor: '#c4210b',
         padding: 10,
         borderRadius: 5,
         alignItems: 'center',
@@ -164,5 +185,10 @@ const styles = StyleSheet.create({
     submitButtonText: {
         color: '#fff',
         fontSize: 16,
+    }, closeButton: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        zIndex: 1,
     },
 });

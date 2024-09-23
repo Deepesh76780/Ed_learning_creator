@@ -7,6 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 // @ts-expect-error
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useTeacherContext } from '@/context/TeacherId';
 
 
 
@@ -18,6 +19,7 @@ export default function CourseDetails() {
     const [loading, setLoading] = useState(true);
     const [week, setWeeks] = useState<any>([])
     const [header, setHeader] = useState()
+    const { teacherName } = useTeacherContext()
 
     useEffect(() => {
 
@@ -51,7 +53,7 @@ export default function CourseDetails() {
 
                     },
                     body: JSON.stringify({
-                        teacher_id: "Deepesh123"
+                        teacher_id: teacherName
                     }),
                 });
 
@@ -140,10 +142,10 @@ export default function CourseDetails() {
                 screenOptions={({ route }) => ({
                     tabBarIcon: ({ color, size }) => {
                         let iconName;
-                        if (route.name === 'desc') {
-                            iconName = 'log-in-outline'; // Ionicons name for Login
+                        if (route.name === 'details') {
+                            iconName = 'information-circle-outline'; // Ionicons name for Login
                         } else if (route.name === 'week') {
-                            iconName = 'person-add-outline'; // Ionicons name for Signup
+                            iconName = 'calendar-outline'; // Ionicons name for Signup
                         }
                         return <Ionicons name={iconName} size={size} color={color} />;
                     },
@@ -152,7 +154,7 @@ export default function CourseDetails() {
                 })}
             >
 
-                <Tab.Screen name="desc" component={Description} />
+                <Tab.Screen name="details" component={Description} />
                 <Tab.Screen name="week" component={Weeks} />
             </Tab.Navigator>
         </NavigationContainer>
@@ -163,6 +165,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
+
     },
     title: {
         fontSize: 24,

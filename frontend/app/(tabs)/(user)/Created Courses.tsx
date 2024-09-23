@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { Stack } from 'expo-router';
+import { useTeacherContext } from '@/context/TeacherId';
 
 // Sample course data
 const courses = [
@@ -25,6 +26,7 @@ const courses = [
 export default function RootLayout() {
     const [courseList, setCourseList] = useState([])
     const [loading, setLoading] = useState(true);
+    const { teacherName } = useTeacherContext()
 
     const handlePress = (courseName: string) => {
         // @ts-expect-error
@@ -42,7 +44,7 @@ export default function RootLayout() {
 
                     },
                     body: JSON.stringify({
-                        teacher_id: "Deepesh123"
+                        teacher_id: teacherName
                     }),
                 });
 

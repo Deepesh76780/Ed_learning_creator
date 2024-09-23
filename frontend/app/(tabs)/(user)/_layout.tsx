@@ -1,9 +1,13 @@
 import React from 'react';
 import { Stack } from 'expo-router';
+import { useTeacherContext } from '@/context/TeacherId';
 
 type Nameprop = { name: string };
 
 export default function RootStack({ name }: Nameprop) {
+
+    const {teacherName} = useTeacherContext();
+
     return (
         <Stack
             screenOptions={{
@@ -18,7 +22,7 @@ export default function RootStack({ name }: Nameprop) {
         >
             <Stack.Screen name="index" options={{
                 headerShown: true,
-                title: `Hi! Deepesh`,  // Set dynamic title
+                title: `welcome ${teacherName}`,  // Set dynamic title
             }} />
         </Stack>
     );
