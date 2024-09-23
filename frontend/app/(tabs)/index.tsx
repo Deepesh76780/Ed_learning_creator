@@ -3,7 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { router } from 'expo-router';
-
+import { useTeacherContext } from '@/context/TeacherId';
 // @ts-expect-error
 import Ionicons from 'react-native-vector-icons/Ionicons'; // Import Icon
 
@@ -13,6 +13,8 @@ function LoginScreen() {
 
     const [username, setName] = useState();
     const [password, setPassword] = useState();
+    const [userType, setUserType] = useState();
+    const { setTeacherData } = useTeacherContext()
 
     const handleLogin = async () => {
         if (!username || !password) {
@@ -29,12 +31,16 @@ function LoginScreen() {
                 body: JSON.stringify({
                     username: username,
                     password: password,
+                    user_type: userType
                 }),
             });
 
             const data = await response.json();
             console.log(data)
             if (response.ok) {
+                setTeacherData({
+                    teacherName: username
+                })
                 if (data.message === 'Login successful') {
                     Alert.alert('Success', data.message);
                     router.push("/(tabs)/(user)/")
@@ -52,13 +58,20 @@ function LoginScreen() {
         }
     };
 
+    const handleGuest = () => {
+        router.push("/(tabs)/(user)/")
+    }
+
     return (
         <View style={styles.container}>
             <Text style={styles.header}>Login</Text>
             <TextInput style={styles.input} placeholder="Name" onChangeText={(newText: any) => setName(newText)}
             />
             <TextInput style={styles.input} placeholder="Password" onChangeText={(newText: any) => setPassword(newText)} secureTextEntry />
+            <TextInput style={styles.input} placeholder="user-type" onChangeText={(newText: any) => setUserType(newText)} />
             <Button title="Login" onPress={handleLogin} color={"#a81400"} />
+            <br />
+            <Button title="Guest" onPress={handleGuest} color={"#a81400"} />
         </View>
     );
 }
@@ -68,6 +81,7 @@ function SignupScreen({ navigation }: { navigation: any }) {
 
     const [username, setName] = useState();
     const [password, setPassword] = useState();
+    const [userType, setUserType] = useState();
 
 
     const handleSignup = async () => {
@@ -85,6 +99,7 @@ function SignupScreen({ navigation }: { navigation: any }) {
                 body: JSON.stringify({
                     username: username,
                     password: password,
+                    user_type: userType,
                 }),
             });
             const data = await response.json();
@@ -113,6 +128,7 @@ function SignupScreen({ navigation }: { navigation: any }) {
             <TextInput style={styles.input} placeholder="Name" onChangeText={(newText: any) => setName(newText)}
             />
             <TextInput style={styles.input} placeholder="Password" onChangeText={(newText: any) => setPassword(newText)} secureTextEntry />
+            <TextInput style={styles.input} placeholder="user-Type" onChangeText={(newText: any) => setUserType(newText)} />
             <Button title="Signup" onPress={handleSignup} color={"#a81400"} />
         </View>
     );

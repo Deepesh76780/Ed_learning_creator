@@ -1,4 +1,3 @@
-# Description: This file contains the backend server code for the GenAI project.
 
 # Imports
 import uvicorn
@@ -17,27 +16,46 @@ from course_layout import generate_Layout
 from quiz import quiz_generator
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
+from typing import List, Dict, Any
 
 
-
-
+# App
 app = FastAPI()
-
 origins = ["*"]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
 # Loading Env Variables
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 db_user = os.getenv("DB_USER")
 db_password = os.getenv("DB_PASSWORD")
 mongodb = os.getenv("DB")
+
+class SignupData(BaseModel):
+    username: str
+    password: str
+    user_type:str
+    
+class GenerateLayout(BaseModel):
+    content: str
+    context: str
+    course_name: str
+    teacher_id: str
+    
+class Course(BaseModel):
+    teacher_id: str
+
+    
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# Description
 
 
 # Routes
@@ -47,25 +65,22 @@ def read_root():
     return {"Hello": "World"}
 
 
-class SignupData(BaseModel):
-    username: str
-    password: str
-    
-    
 # Login Route
-@app.post("/login")
-def login(data : SignupData):
+@app.post("/login/")
+def login(data:SignupData):
+    print("login function is running .... ")
+    # Connect to MongoDB
     username = data.username
     password = data.password
-    
-    print("login function is running")
-
-    
+    user_type = data.user_type
     db_client = pymongo.MongoClient(
         mongodb.replace("<username>", db_user).replace("<password>", db_password)
     )
     db = db_client["genai"]
-    collection = db["users"]
+    if user_type == "teacher":
+        collection = db["teachers"]
+    else:
+        collection = db["users"]
     # Check if user exists
     user = collection.find_one({"username": username})
     # Check if password is correct
@@ -77,19 +92,23 @@ def login(data : SignupData):
     else:
         return {"message": "User not found"}
 
+
 # Signup Route
-@app.post("/signup")
-def signup(data : SignupData):
+@app.post("/signup/")
+def signup(data:SignupData):
+    print("signup function is running .... ")
     username = data.username
     password = data.password
-    
-    print("signup function is running")
+    user_type = data.user_type
     # Connect to MongoDB
     db_client = pymongo.MongoClient(
         mongodb.replace("<username>", db_user).replace("<password>", db_password)
     )
     db = db_client["genai"]
-    collection = db["users"]
+    if user_type == "teacher":
+        collection = db["teachers"]
+    else:
+        collection = db["users"]
     # Check if user already exists
     existing_user = collection.find_one({"username": username})
     # Create new user
@@ -105,19 +124,25 @@ def signup(data : SignupData):
 
 # Generate Course Layout
 @app.post("/generate_layout/")
-def course_layout_generator(content, context, course_name):
-    # Generate course layout
+def course_layout_generator(layout_data: GenerateLayout):
+    
+    print("course_layout_generator function is running...")
+    
+    content = layout_data.content
+    context = layout_data.context
+    course_name = layout_data.course_name
+    teacher_id = layout_data.teacher_id
+    
     final_dic = generate_Layout(content, context)
-
-    # Connect to MongoDB
     db_client = pymongo.MongoClient(
         mongodb.replace("<username>", db_user).replace("<password>", db_password)
     )
+    
     db = db_client["genai"]
     collection = db["course_layouts"]
-    collection.insert_one({course_name: final_dic})
+    collection.insert_one({course_name: final_dic, "teacher_id": teacher_id})
 
-    return
+    return {"message":"Course Generated Successfully"}
 
 
 @app.post("/store_video/")
@@ -262,6 +287,31 @@ def translate_text(course_name, week, level, target_language_code):
     # Translate content to target language
     translated = translate(content, target_language_code)
     return translated
+
+
+
+
+def convert_bson_to_json(bson_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    for doc in bson_data:
+        if "_id" in doc:
+            doc["_id"] = str(doc["_id"])  # Convert ObjectId to string
+    return bson_data
+
+@app.post("/courses")
+def get_courses_by_teacher(data: Course):
+    try:
+        teacher_id = data.teacher_id
+        db_client = pymongo.MongoClient(
+            mongodb.replace("<username>", db_user).replace("<password>", db_password)
+        )
+        db = db_client["genai"]
+        collection = db["course_layouts"]
+        courses = list(collection.find({"teacher_id": teacher_id}))
+        courses_json = convert_bson_to_json(courses)
+        return {"courses": courses_json}
+    except Exception as e:
+        print("An error occurred:", e)
+        return {"error": str(e)}, 500
 
 
 if __name__ == "__main__":

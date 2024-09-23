@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
-import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { Stack } from 'expo-router';
 
 // Sample course data
 const courses = [
@@ -19,35 +20,83 @@ const courses = [
     // Add more courses as needed
 ];
 
-type CourseProp = {
-    id: string,
-    name: string,
-    weeks: number
-}
+
 
 export default function RootLayout() {
+    const [courseList, setCourseList] = useState([])
+    const [loading, setLoading] = useState(true);
+
     const handlePress = (courseName: string) => {
         // @ts-expect-error
         router.push(`/details/${courseName}`, { relativeToDirectory: true });
     };
 
-    const renderCourseCard = ({ item }: { item: CourseProp }) => (
-        <View style={styles.card}>
+    useEffect(() => {
+        (async () => {
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/courses', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+
+                    },
+                    body: JSON.stringify({
+                        teacher_id: "Deepesh123"
+                    }),
+                });
+
+                // console.log(respose)
+                const data = await response.json();
+                setCourseList(data.courses)
+
+            } catch (error) {
+                Alert.alert('Error', 'Failed to connect to the server.');
+                console.error('Error:', error);
+            } finally {
+                setLoading(false)
+            }
+        })()
+    }, [])
+
+    if (loading) {
+        return (
+            <View style={styles.loaderContainer}>
+                <Stack.Screen options={{
+                    headerTitle: "loading...",
+                }} />
+
+                <ActivityIndicator size="large" color="#c4210b" />
+            </View>
+        );
+    }
+
+
+    const renderCourseCard = ({ item }: { item: any }) => {
+
+        const keys = Object.keys(item)
+
+        console.log(keys)
+
+        return (<View style={styles.card}>
             <TouchableOpacity
-                onPress={() => handlePress(item.name)}
+                onPress={() => handlePress(item._id)}
             >
-                <Text style={styles.courseName}>{item.name}</Text>
-                <Text style={styles.courseWeeks}>{item.weeks} weeks</Text>
+                <Text style={styles.courseName}>{keys[1]}</Text>
+                <Text style={styles.courseWeeks}>{item.teacher_id}</Text>
             </TouchableOpacity>
-        </View>
-    );
+        </View>)
+    };
 
     return (
         <View style={styles.container}>
+            <Stack.Screen options={{
+                headerTitle: "created course",
+            }} />
             <FlatList
-                data={courses}
+                data={courseList}
                 renderItem={renderCourseCard}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item._id}
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
             />
@@ -82,5 +131,10 @@ const styles = StyleSheet.create({
     courseWeeks: {
         fontSize: 14,
         color: '#777',
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
