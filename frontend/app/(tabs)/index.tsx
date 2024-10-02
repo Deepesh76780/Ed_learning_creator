@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ImageBackground } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { router } from 'expo-router';
@@ -45,7 +45,7 @@ function LoginScreen() {
                 setTeacherData({
                     teacherName: username
                 })
-                
+
                 if (data.message === 'Login successful') {
                     Alert.alert('Success', data.message);
                     router.push("/(tabs)/(user)/")
@@ -68,21 +68,23 @@ function LoginScreen() {
     }
 
     return (
+
         <View style={styles.container}>
-            <Text style={styles.header}>Login</Text>
-            <TextInput style={styles.input} placeholder="Name" onChangeText={(newText: any) => setName(newText)}
-            />
-            <TextInput style={styles.input} placeholder="Password" onChangeText={(newText: any) => setPassword(newText)} secureTextEntry />
-            <View style={styles.box}>
-                <Text>user</Text>
-                <Switch value={isSwitchOn} onValueChange={onToggleSwitch} color='#a81400' />
-                <Text>teacher</Text>
-                <br />
+            <View style={styles.outerContainer}>
+                <Text style={styles.header}>Login</Text>
+                <TextInput style={styles.input} placeholder="Name" onChangeText={(newText: any) => setName(newText)}
+                />
+                <TextInput style={styles.input} placeholder="Password" onChangeText={(newText: any) => setPassword(newText)} secureTextEntry />
+                <View style={styles.box}>
+                    <Text>student</Text>
+                    <Switch value={isSwitchOn} onValueChange={onToggleSwitch} color='#a81400' />
+                    <Text>teacher</Text>
+                    <br />
+                </View>
+                <Button title="Login" onPress={handleLogin} color={"#a81400"} />
             </View>
-            <Button title="Login" onPress={handleLogin} color={"#a81400"} />
-            <br />
-            <Button title="Guest" onPress={handleGuest} color={"#a81400"} />
         </View>
+
     );
 }
 
@@ -135,18 +137,21 @@ function SignupScreen({ navigation }: { navigation: any }) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.header}>Signup</Text>
-            <TextInput style={styles.input} placeholder="Name" onChangeText={(newText: any) => setName(newText)}
-            />
-            <TextInput style={styles.input} placeholder="Password" onChangeText={(newText: any) => setPassword(newText)} secureTextEntry />
-            <View style={styles.box}>
-                <Text>user</Text>
-                <Switch value={isSwitchOn} onValueChange={onToggleSwitch} color='#a81400' />
-                <Text>teacher</Text>
-                <br />
+            <View style={styles.outerContainer}>
+                <Text style={styles.header}>Signup</Text>
+                <TextInput style={styles.input} placeholder="Name" onChangeText={(newText: any) => setName(newText)}
+                />
+                <TextInput style={styles.input} placeholder="Password" onChangeText={(newText: any) => setPassword(newText)} secureTextEntry />
+                <View style={styles.box}>
+                    <Text>student</Text>
+                    <Switch value={isSwitchOn} onValueChange={onToggleSwitch} color='#a81400' />
+                    <Text>teacher</Text>
+                    <br />
+                </View>
+                <Button title="Signup" onPress={handleSignup} color={"#a81400"} />
             </View>
-            <Button title="Signup" onPress={handleSignup} color={"#a81400"} />
         </View>
+
     );
 }
 
@@ -165,7 +170,7 @@ export default function Login() {
                         return <Ionicons name={iconName} size={size} color={color} />;
                     },
                     tabBarActiveTintColor: "#a81400",
-                    headerShown: false,
+                    headerTitle: "SEEKHO",
                 })}
             >
                 <Tab.Screen name="Login" component={LoginScreen} />
@@ -177,10 +182,47 @@ export default function Login() {
 
 // Styles
 const styles = StyleSheet.create({
+    background: {
+        flex: 1, // Ensure the image fills the screen
+        justifyContent: 'center', // Adjust this as needed
+    },
     container: {
         flex: 1,
-        padding: 20,
         justifyContent: 'center',
+        backgroundColor: "#a81400",
+        margin: 10,
+        borderRadius: 5,
+    },
+    outerContainer: {
+        padding: 20,
+        marginVertical: "auto",
+        justifyContent: 'center',
+        backgroundColor: "#f6f6f6f1",
+        margin: 10,
+        borderRadius: 5,
+        // Shadow properties for iOS
+        shadowColor: "#000", // Shadow color
+        shadowOffset: {
+            width: 0, // Horizontal offset
+            height: 2, // Vertical offset
+        },
+        shadowOpacity: 0.1, // Opacity of the shadow
+        shadowRadius: 4, // Radius of the shadow
+        // Elevation for Android
+        elevation: 5,  // Elevation level
+    },
+    innerContainer: {
+        flex: 1,
+        borderRadius: 5,
+        backgroundColor: "#f6f6f6f1",
+        // Create the inner shadow effect
+        shadowColor: '#000', // Shadow color
+        shadowOffset: {
+            width: 0,
+            height: -2, // Move shadow upward for inner effect
+        },
+        shadowOpacity: 0.2, // Increase opacity for inner shadow
+        shadowRadius: 4, // Radius of the shadow
     },
     header: {
         fontSize: 24,
@@ -194,10 +236,10 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         paddingHorizontal: 8,
     },
-    box:{
-        display:"flex",
-        flexDirection:"row",
-        gap:10,
-        padding:10
+    box: {
+        display: "flex",
+        flexDirection: "row",
+        gap: 10,
+        padding: 10
     }
 });

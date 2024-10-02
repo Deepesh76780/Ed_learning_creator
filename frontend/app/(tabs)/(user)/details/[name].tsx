@@ -79,82 +79,83 @@ export default function CourseDetails() {
         })()
     }, [teacherName])
 
-    if (loading) {
-        return (
-            <View style={styles.loaderContainer}>
-                {/* <Stack.Screen options={{
-                    headerTitle: "loading...",
-                }} /> */}
-
-                <ActivityIndicator size="large" color="#c4210b" />
-            </View>
-        );
-    }
+    // if (loading) {
+    //     return (
+    //         <View style={styles.loaderContainer}>
+    //             <Stack.Screen options={{
+    //                 headerTitle: "loading...",
+    //             }} />
+    //             <ActivityIndicator size="large" color="#c4210b" />
+    //         </View>
+    //     );
+    // }
 
     function Description() {
         return (
-            <View style={styles.container}>
-                {/* <Stack.Screen options={{
+            <>
+                <View style={styles.container}>
+                    {/* <Stack.Screen options={{
                     headerTitle: header || "course details",
                 }} /> */}
-                <ScrollView style={styles.scrollContainer}>
-                    <View style={styles.section}>
-                        <Text style={styles.header}>Description</Text>
-                        <Text style={styles.content}>{courseList?.description}</Text>
-                    </View>
-                    <View style={styles.section}>
-                        <Text style={styles.header}>Grading Policy</Text>
-                        {courseList?.grading_policy.split('*').map((item:any, index:any) => {
-                            // Trim the item to remove leading/trailing spaces
-                            const trimmedItem = item.trim();
-                            // Check if the trimmed item is not empty
-                            if (trimmedItem) {
-                                return (
-                                    <Text key={index} style={styles.content}>
-                                        • {trimmedItem}
-                                    </Text>
-                                );
-                            }
-                            return null; // Return null for empty items
-                        })}
-                    </View>
+                    <ScrollView style={styles.scrollContainer}>
+                        <View style={styles.section}>
+                            <Text style={styles.header}>Description</Text>
+                            <Text style={styles.content}>{courseList?.description}</Text>
+                        </View>
+                        <View style={styles.section}>
+                            <Text style={styles.header}>Grading Policy</Text>
+                            {courseList?.grading_policy.split('*').map((item: any, index: any) => {
+                                // Trim the item to remove leading/trailing spaces
+                                const trimmedItem = item.trim();
+                                // Check if the trimmed item is not empty
+                                if (trimmedItem) {
+                                    return (
+                                        <Text key={index} style={styles.content}>
+                                            • {trimmedItem}
+                                        </Text>
+                                    );
+                                }
+                                return null; // Return null for empty items
+                            })}
+                        </View>
 
-                    <View style={styles.section}>
-                        <Text style={styles.header}>Prerequisites</Text>
-                        {courseList?.pre_requisites.split('*').map((item: any, index: any) => {
-                            // Trim the item to remove leading/trailing spaces
-                            const trimmedItem = item.trim();
-                            // Check if the trimmed item is not empty
-                            if (trimmedItem) {
-                                return (
-                                    <Text key={index} style={styles.content}>
-                                        • {trimmedItem}
-                                    </Text>
-                                );
-                            }
-                            return null; // Return null for empty items
-                        })}
-                    </View>
+                        <View style={styles.section}>
+                            <Text style={styles.header}>Prerequisites</Text>
+                            {courseList?.pre_requisites.split('*').map((item: any, index: any) => {
+                                // Trim the item to remove leading/trailing spaces
+                                const trimmedItem = item.trim();
+                                // Check if the trimmed item is not empty
+                                if (trimmedItem) {
+                                    return (
+                                        <Text key={index} style={styles.content}>
+                                            • {trimmedItem}
+                                        </Text>
+                                    );
+                                }
+                                return null; // Return null for empty items
+                            })}
+                        </View>
 
-                    <View style={styles.section}>
-                        <Text style={styles.header}>References</Text>
-                        {courseList?.references.split('*').map((item: any, index: any) => {
-                            // Trim the item to remove leading/trailing spaces
-                            const trimmedItem = item.trim();
-                            // Check if the trimmed item is not empty
-                            if (trimmedItem) {
-                                return (
-                                    <Text key={index} style={styles.content}>
-                                        • {trimmedItem}
-                                    </Text>
-                                );
-                            }
-                            return null; // Return null for empty items
-                        })}
-                    </View>
+                        <View style={styles.section}>
+                            <Text style={styles.header}>References</Text>
+                            {courseList?.references.split('*').map((item: any, index: any) => {
+                                // Trim the item to remove leading/trailing spaces
+                                const trimmedItem = item.trim();
+                                // Check if the trimmed item is not empty
+                                if (trimmedItem) {
+                                    return (
+                                        <Text key={index} style={styles.content}>
+                                            • {trimmedItem}
+                                        </Text>
+                                    );
+                                }
+                                return null; // Return null for empty items
+                            })}
+                        </View>
 
-                </ScrollView>
-            </View>
+                    </ScrollView>
+                </View>
+            </>
 
         )
     }
@@ -162,7 +163,7 @@ export default function CourseDetails() {
     function Weeks() {
         return (
             <View style={styles.container}>
-          
+
                 <ScrollView>
                     {
                         week.map((weekData: any, index: any) => (
@@ -179,6 +180,8 @@ export default function CourseDetails() {
     }
 
 
+
+
     return (
 
         <NavigationContainer independent={true}>
@@ -186,7 +189,7 @@ export default function CourseDetails() {
                 screenOptions={({ route }) => ({
                     tabBarIcon: ({ color, size }) => {
                         let iconName;
-                        if (route.name === 'details') {
+                        if (route.name === 'overview') {
                             iconName = 'information-circle-outline'; // Ionicons name for Login
                         } else if (route.name === 'week') {
                             iconName = 'calendar-outline'; // Ionicons name for Signup
@@ -194,11 +197,18 @@ export default function CourseDetails() {
                         return <Ionicons name={iconName} size={size} color={color} />;
                     },
                     tabBarActiveTintColor: "#a81400",
-                    headerShown: false,
+                    headerShown: true,
+                    headerTitle: "Operating System", // Set your custom title here
+                    headerTitleStyle:{
+                        color:"white"
+                    },
+                    headerStyle: {
+                        backgroundColor: '#a81400'
+                    },
                 })}
             >
 
-                <Tab.Screen name="details" component={Description} />
+                <Tab.Screen name="overview" component={Description} />
                 <Tab.Screen name="week" component={Weeks} />
             </Tab.Navigator>
         </NavigationContainer>

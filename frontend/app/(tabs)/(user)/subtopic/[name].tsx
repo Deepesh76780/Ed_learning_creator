@@ -188,7 +188,7 @@ const sub = () => {
     const [videos, setVideos] = useState<any>();
     const [selectedSubtopic, setSelectedSubtopic] = useState<any>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const { courseName } = useTeacherContext();
+    const { courseName, teacherName } = useTeacherContext();
     const [status, setStatus] = useState<any>({});
     const video = useRef<any>(null);
 
@@ -197,7 +197,7 @@ const sub = () => {
 
     useEffect(() => {
         (async () => {
-            const url = `http://34.45.174.70:80/courses/?teacher_id=sans`;
+            const url = `http://34.45.174.70:80/courses/?teacher_id=${teacherName}`;
 
             try {
                 const response = await fetch(url, {
@@ -209,6 +209,7 @@ const sub = () => {
 
                 const data = await response.json();
                 const filterData: any[] = data.filter((item: any) => Object.keys(item).includes(courseName));
+
 
                 if (filterData.length === 0) {
                     console.error("No data found matching the criteria.");
@@ -288,6 +289,7 @@ const sub = () => {
     };
 
 
+    const [selectedLevel,setSelectedLevel] = useState()
 
 
 
@@ -297,7 +299,7 @@ const sub = () => {
         <View style={styles.container}>
             {/* Subtopic List */}
             <ScrollView style={styles.scrollView}>
-                {subtopics.filter((subtopic: any) => subtopic !== '').map((subtopic: any, index: any) => (
+                {subtopics.filter((subtopic: any) => subtopic.trim() !== '').map((subtopic: any, index: any) => (
                     <TouchableOpacity key={index} onPress={() => handleSubtopicPress(subtopic)}>
                         <View style={styles.subtopicContainer}>
                             <Text style={styles.subtopicText}>{subtopic}</Text>
@@ -316,6 +318,19 @@ const sub = () => {
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalText}>Selected Subtopic: {selectedSubtopic}</Text>
+                        <Text style={styles.modalText}>Choose Audio:</Text>
+                        <Picker
+                            selectedValue={selectedLevel}
+                            onValueChange={(itemValue) => {
+                                setSelectedLevel(itemValue)
+                            }}
+                            style={styles.picker}
+                        >
+                            <Picker.Item label="English" value="english" />
+                            <Picker.Item label="Hindi" value="hindi" />
+                            <Picker.Item label="Bengali" value="bengali" />
+                        </Picker>
+
                         {/* Replace with actual video URL if needed */}
                         <View style={styles.video}>
                             <iframe width="300" height="320" src={`https://www.youtube.com/embed/${videos}`} title="AP Dhillon All Hit Songs | Audio Jukebox 2022 | AP Dhillon All Love Songs | @MasterpieceAMan" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
@@ -362,7 +377,7 @@ const quiz = () => {
                 });
 
                 const data = await response.json();
-                
+
                 console.log(data)
 
                 if (response.ok) {
@@ -391,10 +406,10 @@ const quiz = () => {
             return (
                 <View key={key} style={styles.questionContainer}>
                     <Text style={styles.questionText}>{`${key}. ${quizData.questions[key]}`}</Text>
-                    {quizData.options[key].map((option:any, index:any) => (
+                    {/* {quizData.options[key].map((option: any, index: any) => (
                         <Text key={index} style={styles.optionText}>{option}</Text>
-                    ))}
-                    <Text style={styles.answerText}>{`Correct Answer: ${quizData.answers[key]}`}</Text>
+                    ))} */}
+                    {/* <Text style={styles.answerText}>{`Correct Answer: ${quizData.answers[key]}`}</Text> */}
                 </View>
             );
         })}
@@ -421,7 +436,13 @@ const Subtopic = () => {
                         return <Ionicons name={iconName} size={size} color={color} />;
                     },
                     tabBarActiveTintColor: "#a81400",
-                    headerShown: false,
+                    headerShown: true,
+                    headerTitleStyle: {
+                        color: "white"
+                    },
+                    headerStyle: {
+                        backgroundColor: '#a81400'
+                    },
                 })}
             >
 

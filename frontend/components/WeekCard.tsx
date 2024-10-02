@@ -17,6 +17,7 @@ const WeekCard = ({ week, subTopic }: WeekCardProp) => {
     const [loading, setLoading] = useState(false);
     const { courseName } = useTeacherContext();
 
+
     const toggleDropdown = () => {
 
         const handleTrigger = async () => {
@@ -44,8 +45,8 @@ const WeekCard = ({ week, subTopic }: WeekCardProp) => {
                 });
 
                 const data = await response.json();
-
-                if(data === null)
+                
+                if(data === "Summary not found for the given course and week")
                 {
                     setIsOpen(!isOpen);
                 }
@@ -203,10 +204,11 @@ const WeekCard = ({ week, subTopic }: WeekCardProp) => {
     if (loading) {
         return (
             <View style={styles.loaderContainer}>
-                        <ActivityIndicator size="large" color="#c4210b" />
+                <ActivityIndicator size="large" color="#c4210b" />
             </View> 
         );
     }
+
 
     return (
         <View style={styles.card}>
@@ -218,7 +220,7 @@ const WeekCard = ({ week, subTopic }: WeekCardProp) => {
                     <Text style={styles.headerText}>Enter the video URL for: {week}</Text>
                     <ScrollView>
                         {dataArray.map((subtopic, index) => {
-                            if (subtopic === "") {
+                            if (subtopic.trim() === "") {
                                 return null; // Return null instead of undefined
                             }
                             return (
@@ -296,6 +298,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        marginVertical:20,
     },
 });
 
