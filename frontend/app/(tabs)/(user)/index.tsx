@@ -19,23 +19,21 @@ export default function RootLayout() {
     const handleCreateCourse = async () => {
         setLoading(true)
         try {
-            const response = await fetch('http://127.0.0.1:8000/generate_layout', {
+
+            const url = `http://34.45.174.70:80/generate_layout?content=${content}&context=${context}&course_name=${courseName}&teacher_id=${teacherName}`;
+
+            console.log(content,context,courseName,teacherName)
+
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    content: content,
-                    context: context,
-                    course_name: courseName,
-                    teacher_id: teacherName
-                }),
+                }
             });
 
             const data = await response.json();
-
             if (response.ok) {
-                if (data.message === 'Course Generated Successfully') {
+                if (data && data.message === 'Course Generated Successfully') {
                     Alert.alert('Success', data.message);
                     router.push("/Created Courses")
                 } else {
@@ -93,12 +91,6 @@ export default function RootLayout() {
                             value={courseName}
                             onChangeText={setCourseName}
                         />
-                        {/* <TextInput
-                            style={styles.input}
-                            placeholder="Teacher ID"
-                            value={teacherId}
-                            onChangeText={setTeacherId}
-                        /> */}
                         <TextInput
                             style={styles.input}
                             placeholder="Content"

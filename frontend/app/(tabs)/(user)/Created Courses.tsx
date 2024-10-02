@@ -4,53 +4,38 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, ActivityIndi
 import { Stack } from 'expo-router';
 import { useTeacherContext } from '@/context/TeacherId';
 
-// Sample course data
-const courses = [
-    { id: '1', name: 'React Native Basics', weeks: 4 },
-    { id: '2', name: 'Advanced React Native', weeks: 6 },
-    { id: '3', name: 'JavaScript Essentials', weeks: 3 },
-    { id: '4', name: 'Full Stack Development', weeks: 8 },
-    { id: '5', name: 'Blockchain Development', weeks: 5 },
-    { id: '6', name: 'AI Model Integration', weeks: 7 },
-    { id: '7', name: 'React Native Basics', weeks: 4 },
-    { id: '8', name: 'Advanced React Native', weeks: 6 },
-    { id: '9', name: 'JavaScript Essentials', weeks: 3 },
-    { id: '10', name: 'Full Stack Development', weeks: 8 },
-    { id: '11', name: 'Blockchain Development', weeks: 5 },
-    { id: '12', name: 'AI Model Integration', weeks: 7 },
-    // Add more courses as needed
-];
-
-
-
 export default function RootLayout() {
     const [courseList, setCourseList] = useState([])
     const [loading, setLoading] = useState(true);
-    const { teacherName } = useTeacherContext()
+    const { teacherName,setTeacherData } = useTeacherContext()
 
-    const handlePress = (courseName: string) => {
+    const handlePress = (item: string) => {
+        const courseName = Object.keys(item)[1];
+        setTeacherData((prev) => ({
+            ...prev,               
+            courseName:courseName
+        }));
+        
         // @ts-expect-error
-        router.push(`/details/${courseName}`, { relativeToDirectory: true });
+        router.push(`/details/${item._id.$oid}`, { relativeToDirectory: true });
     };
+
+    const url = `http://34.45.174.70:80/courses/?teacher_id=${teacherName}`;
 
     useEffect(() => {
         (async () => {
 
             try {
-                const response = await fetch('http://127.0.0.1:8000/courses', {
-                    method: 'POST',
+                const response = await fetch(url, {
+                    method: 'GET', 
                     headers: {
                         'Content-Type': 'application/json',
-
                     },
-                    body: JSON.stringify({
-                        teacher_id: teacherName
-                    }),
                 });
-
+        
                 // console.log(respose)
                 const data = await response.json();
-                setCourseList(data.courses)
+                setCourseList(data)
 
             } catch (error) {
                 Alert.alert('Error', 'Failed to connect to the server.');
@@ -82,7 +67,7 @@ export default function RootLayout() {
 
         return (<View style={styles.card}>
             <TouchableOpacity
-                onPress={() => handlePress(item._id)}
+                onPress={() => handlePress(item)}
             >
                 <Text style={styles.courseName}>{keys[1]}</Text>
                 <Text style={styles.courseWeeks}>{item.teacher_id}</Text>
@@ -93,12 +78,12 @@ export default function RootLayout() {
     return (
         <View style={styles.container}>
             <Stack.Screen options={{
-                headerTitle: "created course",
+                headerTitle: `created course by ${teacherName} `,
             }} />
             <FlatList
                 data={courseList}
                 renderItem={renderCourseCard}
-                keyExtractor={(item) => item._id}
+                keyExtractor={(item) => (item._id.$oid)}
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
             />

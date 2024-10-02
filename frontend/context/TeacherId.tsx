@@ -3,7 +3,8 @@ import React, { createContext, useState, useContext } from 'react';
 // Create a context with default values
 
 interface TeacherData {
-    teacherName: string;
+    teacherName?: string;
+    courseName?:string;
 }
 
 // Define the shape of the context
@@ -13,6 +14,7 @@ interface TeacherContextType extends TeacherData {
 
 export const TeacherContext = createContext<TeacherContextType>({
     teacherName: '',
+    courseName:'',
     setTeacherData: () => { },
 });
 
@@ -28,7 +30,8 @@ export const useTeacherContext = () => {
 export const TeacherProvider = ({ children }: any) => {
     // State to hold teacher's ID and name
     const [teacherData, setTeacherData] = useState<TeacherData>({
-        teacherName: ''
+        teacherName: '',
+        courseName:''
     });
 
     return (

@@ -4,6 +4,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { useTeacherContext } from '@/context/TeacherId';
+import { Switch } from 'react-native-paper';
+
 // @ts-expect-error
 import Ionicons from 'react-native-vector-icons/Ionicons'; // Import Icon
 
@@ -13,8 +15,14 @@ function LoginScreen() {
 
     const [username, setName] = useState();
     const [password, setPassword] = useState();
-    const [userType, setUserType] = useState();
+    const [isSwitchOn, setIsSwitchOn] = React.useState(true);
+
     const { setTeacherData } = useTeacherContext()
+    const onToggleSwitch = () => setIsSwitchOn(isSwitchOn);
+
+    const userType = isSwitchOn ? "teacher" : "user";
+
+    const url = `http://34.45.174.70:80/login?username=${username}&password=${password}&user_type=${userType}`;
 
     const handleLogin = async () => {
         if (!username || !password) {
@@ -22,17 +30,13 @@ function LoginScreen() {
             return;
         }
 
+        console.log("yes")
         try {
-            const response = await fetch('http://127.0.0.1:8000/login', {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: username,
-                    password: password,
-                    user_type: userType
-                }),
+                }
             });
 
             const data = await response.json();
@@ -41,6 +45,7 @@ function LoginScreen() {
                 setTeacherData({
                     teacherName: username
                 })
+                
                 if (data.message === 'Login successful') {
                     Alert.alert('Success', data.message);
                     router.push("/(tabs)/(user)/")
@@ -68,7 +73,12 @@ function LoginScreen() {
             <TextInput style={styles.input} placeholder="Name" onChangeText={(newText: any) => setName(newText)}
             />
             <TextInput style={styles.input} placeholder="Password" onChangeText={(newText: any) => setPassword(newText)} secureTextEntry />
-            <TextInput style={styles.input} placeholder="user-type" onChangeText={(newText: any) => setUserType(newText)} />
+            <View style={styles.box}>
+                <Text>user</Text>
+                <Switch value={isSwitchOn} onValueChange={onToggleSwitch} color='#a81400' />
+                <Text>teacher</Text>
+                <br />
+            </View>
             <Button title="Login" onPress={handleLogin} color={"#a81400"} />
             <br />
             <Button title="Guest" onPress={handleGuest} color={"#a81400"} />
@@ -81,7 +91,13 @@ function SignupScreen({ navigation }: { navigation: any }) {
 
     const [username, setName] = useState();
     const [password, setPassword] = useState();
-    const [userType, setUserType] = useState();
+    const [isSwitchOn, setIsSwitchOn] = React.useState(true);
+
+    const onToggleSwitch = () => setIsSwitchOn(isSwitchOn);
+
+    const userType = isSwitchOn ? "teacher" : "user";
+
+    const url = `http://34.45.174.70:80/signup?username=${username}&password=${password}&user_type=${userType}`;
 
 
     const handleSignup = async () => {
@@ -91,16 +107,11 @@ function SignupScreen({ navigation }: { navigation: any }) {
         }
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/signup', {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: username,
-                    password: password,
-                    user_type: userType,
-                }),
+                }
             });
             const data = await response.json();
 
@@ -128,7 +139,12 @@ function SignupScreen({ navigation }: { navigation: any }) {
             <TextInput style={styles.input} placeholder="Name" onChangeText={(newText: any) => setName(newText)}
             />
             <TextInput style={styles.input} placeholder="Password" onChangeText={(newText: any) => setPassword(newText)} secureTextEntry />
-            <TextInput style={styles.input} placeholder="user-Type" onChangeText={(newText: any) => setUserType(newText)} />
+            <View style={styles.box}>
+                <Text>user</Text>
+                <Switch value={isSwitchOn} onValueChange={onToggleSwitch} color='#a81400' />
+                <Text>teacher</Text>
+                <br />
+            </View>
             <Button title="Signup" onPress={handleSignup} color={"#a81400"} />
         </View>
     );
@@ -178,4 +194,10 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         paddingHorizontal: 8,
     },
+    box:{
+        display:"flex",
+        flexDirection:"row",
+        gap:10,
+        padding:10
+    }
 });

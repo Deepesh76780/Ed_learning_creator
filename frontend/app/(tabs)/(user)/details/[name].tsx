@@ -18,12 +18,13 @@ export default function CourseDetails() {
     const [courseList, setCourseList] = useState<any>()
     const [loading, setLoading] = useState(true);
     const [week, setWeeks] = useState<any>([])
+    const [subtopic, setSubTopic] = useState<any>([])
     const [header, setHeader] = useState()
     const { teacherName } = useTeacherContext()
 
+    console.log(teacherName)
+
     useEffect(() => {
-
-
         if (courseList) {
 
             const data = courseList && Object.keys(courseList["content_layout"])
@@ -45,25 +46,30 @@ export default function CourseDetails() {
     useEffect(() => {
         (async () => {
 
+
+            const url = `http://34.45.174.70:80/courses/?teacher_id=${teacherName}`;
+
+
             try {
-                const response = await fetch('http://127.0.0.1:8000/courses', {
-                    method: 'POST',
+                const response = await fetch(url, {
+                    method: 'GET', // Use GET since we are passing parameters in the URL
                     headers: {
                         'Content-Type': 'application/json',
-
                     },
-                    body: JSON.stringify({
-                        teacher_id: teacherName
-                    }),
                 });
 
                 const data = await response.json();
 
-                const filterData: any = data.courses.filter((item: any) => item._id === name)
+                console.log(data)
+
+                const filterData: any = data.filter((item: any) => item._id.$oid === name)
+                console.log(filterData)
                 const getKeys: any = Object.keys(filterData[0])
                 setHeader(getKeys[1]);
                 const getContext = Object.keys(filterData[0][getKeys[1]])
                 setCourseList(filterData[0][getKeys[1]][getContext[0]])
+                setSubTopic(filterData[0][getKeys[1]][getContext[0]]["content_layout"])
+
 
             } catch (error) {
                 console.error('Error:', error);
@@ -71,7 +77,7 @@ export default function CourseDetails() {
                 setLoading(false);
             }
         })()
-    }, [])
+    }, [teacherName])
 
     if (loading) {
         return (
@@ -88,9 +94,9 @@ export default function CourseDetails() {
     function Description() {
         return (
             <View style={styles.container}>
-                <Stack.Screen options={{
+                {/* <Stack.Screen options={{
                     headerTitle: header || "course details",
-                }} />
+                }} /> */}
                 <ScrollView style={styles.scrollContainer}>
                     <View style={styles.section}>
                         <Text style={styles.header}>Description</Text>
@@ -98,16 +104,55 @@ export default function CourseDetails() {
                     </View>
                     <View style={styles.section}>
                         <Text style={styles.header}>Grading Policy</Text>
-                        <Text style={styles.content}>{courseList?.grading_policy}</Text>
+                        {courseList?.grading_policy.split('*').map((item:any, index:any) => {
+                            // Trim the item to remove leading/trailing spaces
+                            const trimmedItem = item.trim();
+                            // Check if the trimmed item is not empty
+                            if (trimmedItem) {
+                                return (
+                                    <Text key={index} style={styles.content}>
+                                        • {trimmedItem}
+                                    </Text>
+                                );
+                            }
+                            return null; // Return null for empty items
+                        })}
                     </View>
+
                     <View style={styles.section}>
                         <Text style={styles.header}>Prerequisites</Text>
-                        <Text style={styles.content}>{courseList?.pre_requisites}</Text>
+                        {courseList?.pre_requisites.split('*').map((item: any, index: any) => {
+                            // Trim the item to remove leading/trailing spaces
+                            const trimmedItem = item.trim();
+                            // Check if the trimmed item is not empty
+                            if (trimmedItem) {
+                                return (
+                                    <Text key={index} style={styles.content}>
+                                        • {trimmedItem}
+                                    </Text>
+                                );
+                            }
+                            return null; // Return null for empty items
+                        })}
                     </View>
+
                     <View style={styles.section}>
                         <Text style={styles.header}>References</Text>
-                        <Text style={styles.content}>{courseList?.references}</Text>
+                        {courseList?.references.split('*').map((item: any, index: any) => {
+                            // Trim the item to remove leading/trailing spaces
+                            const trimmedItem = item.trim();
+                            // Check if the trimmed item is not empty
+                            if (trimmedItem) {
+                                return (
+                                    <Text key={index} style={styles.content}>
+                                        • {trimmedItem}
+                                    </Text>
+                                );
+                            }
+                            return null; // Return null for empty items
+                        })}
                     </View>
+
                 </ScrollView>
             </View>
 
@@ -117,15 +162,14 @@ export default function CourseDetails() {
     function Weeks() {
         return (
             <View style={styles.container}>
-                <Stack.Screen options={{
-                    headerTitle: header || "course details",
-                }} />
+          
                 <ScrollView>
                     {
                         week.map((weekData: any, index: any) => (
                             <WeekCard
                                 key={index}
                                 week={weekData.week}
+                                subTopic={subtopic[weekData.week]}
                             />
                         ))
                     }
@@ -150,7 +194,7 @@ export default function CourseDetails() {
                         return <Ionicons name={iconName} size={size} color={color} />;
                     },
                     tabBarActiveTintColor: "#a81400",
-                    headerShown: true,
+                    headerShown: false,
                 })}
             >
 
@@ -160,6 +204,8 @@ export default function CourseDetails() {
         </NavigationContainer>
     );
 }
+
+
 
 const styles = StyleSheet.create({
     container: {
