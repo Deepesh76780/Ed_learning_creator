@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, Modal, TouchableOpacity, Button } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, Modal, TextInput, TouchableOpacity, Button } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useTeacherContext } from '@/context/TeacherId';
 import { Picker } from '@react-native-picker/picker';
@@ -289,7 +289,7 @@ const sub = () => {
     };
 
 
-    const [selectedLevel,setSelectedLevel] = useState()
+    const [selectedLevel, setSelectedLevel] = useState()
 
 
 
@@ -416,6 +416,92 @@ const quiz = () => {
     </ScrollView>)
 }
 
+
+const DoubtSolver = () => {
+    const [chats, setChats] = useState([
+        { type: 'sender', message: 'Hello, I have a doubt!' },
+        { type: 'receiver', message: 'Sure, what is your doubt?' }
+    ]);
+    const [newMessage, setNewMessage] = useState('');
+    const [userC, setuserC] = useState("")
+    const [modalC, setModalC] = useState("")
+    const [loading,setLoading] = useState(false);
+
+
+    const handleFetchQuiz = async () => {
+
+        const url = `http://34.45.174.70:80/solve_doubt?user_context=${userC.trim()}&model_context=${modalC}&prompt=${newMessage}`;
+
+        setLoading(true);
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+
+            console.log(data)
+
+            if (response.ok) {
+                setuserC(data.user_context);
+                setModalC(data.model_context);
+                setChats((prev)=>[...prev, { type: 'receiver', message: data.model_response }]);
+            } else {
+                Alert.alert('Error', data.message || 'Something went wrong, please try again later.');
+            }
+        } catch (error) {
+            Alert.alert('Error', 'Failed to connect to the server.');
+            console.error('Error:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+
+
+
+    const sendMessage = () => {
+        if (newMessage.trim()) {
+            setChats((prev)=>[...prev, { type: 'sender', message: newMessage }]);
+            handleFetchQuiz();
+            setNewMessage('');
+        }
+    };
+
+    return (
+        <View style={styles.container}>
+            <ScrollView style={styles.chatContainer}>
+                {chats.map((chat, index) => (
+                    <View
+                        key={index}
+                        style={[
+                            styles.messageContainer,
+                            chat.type === 'receiver' ? styles.sender : styles.receiver
+                        ]}
+                    >
+                        <Text style={styles.message}>{chat.message}</Text>
+                    </View>
+                ))}
+            </ScrollView>
+
+            <View style={styles.inputContainer}>
+                <TextInput
+                    style={styles.input}
+                    value={newMessage}
+                    onChangeText={setNewMessage}
+                    placeholder="Type your message..."
+                />
+                <Button title="Send" onPress={sendMessage} color="#a81400"/>
+            </View>
+        </View>
+    );
+};
+
+
 const Subtopic = () => {
     const Tab = createBottomTabNavigator()
 
@@ -432,6 +518,8 @@ const Subtopic = () => {
                             iconName = 'bookmark'; // Ionicons name for Signup
                         } else if (route.name === "quiz") {
                             iconName = "help"
+                        } else if (route.name === "doubt") {
+                            iconName = "code"
                         }
                         return <Ionicons name={iconName} size={size} color={color} />;
                     },
@@ -449,6 +537,7 @@ const Subtopic = () => {
                 <Tab.Screen name="notes" component={WeekNotes} />
                 <Tab.Screen name="subtopic" component={sub} />
                 <Tab.Screen name="quiz" component={quiz} />
+                <Tab.Screen name="doubt" component={DoubtSolver} />
             </Tab.Navigator>
         </NavigationContainer>
     );
@@ -564,6 +653,40 @@ const styles = StyleSheet.create({
     answerText: {
         marginTop: 5,
         fontStyle: 'italic',
+    },
+    chatContainer: {
+        flex: 1,
+        marginBottom: 10,
+    },
+    messageContainer: {
+        padding: 10,
+        marginVertical: 5,
+        borderRadius: 10,
+        maxWidth: '70%',
+    },
+    sender: {
+        backgroundColor: '#d1f7c4',
+        alignSelf: 'flex-start',
+    },
+    receiver: {
+        backgroundColor: '#cce0ff',
+        alignSelf: 'flex-end',
+    },
+    message: {
+        fontSize: 16,
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    input: {
+        flex: 1,
+        padding: 10,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        marginRight: 10,
     },
 });
 
